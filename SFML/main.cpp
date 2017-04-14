@@ -7,7 +7,7 @@ using namespace sf;
 
 int main()
 {
-    RenderWindow window(VideoMode(800, 600), "");
+	RenderWindow window(VideoMode(800, 600), "");;;
 
     view.reset(FloatRect(0, 0, 800, 600));
 
