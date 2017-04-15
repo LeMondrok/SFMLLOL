@@ -56,13 +56,9 @@ public:
     {
 		for (std::list<Entity*>::iterator it = entities.begin(); it != entities.end(); it++)
 			if (entIsAlive[(*it)->num])
-			{
 				(*it)->update(time);
-				if (!entIsAlive[(*it)->num]) it--;
-			}
 
-		std::cout << (*entities.begin())->num;
-
+		
 		draw(window, &s_map, &entities, time, player, Sbg);
      }
 

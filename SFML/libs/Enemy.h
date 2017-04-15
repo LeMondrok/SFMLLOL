@@ -304,16 +304,21 @@ void Unicorn::AI (double *timer)
         else
             z->shoot(-1, &x, &y);
 
-        if ((*b)->x > this->x)
+        if ((*b)->x > this->x + 100)
         {
             state = right;
             speed = 0.1;
         }
         else
+		if ((*b)->x < this->x - 100)
         {
             state = left;
             speed = 0.1;
         }
+		else
+		{
+			speed = 0;
+		}
 
         if (onGround && pX == x)
         {

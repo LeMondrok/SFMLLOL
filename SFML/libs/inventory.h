@@ -317,9 +317,13 @@ public:
 	std::vector < std::list<Entity*>::iterator > *Qd;
 	Entity* owner;
 
-    Weapon (int Ammo, bool Friendly, std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd,
+    Weapon (int Ammo, bool Friendly, std::list <Entity*> *L, std::vector < std::list<Entity*>::iterator > *QD,
 			Entity* Owner)
     {
+		l = L;
+
+		Qd = QD;
+
 		owner = Owner;
 
         ammo = Ammo;
