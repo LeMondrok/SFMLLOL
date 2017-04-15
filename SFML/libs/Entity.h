@@ -16,14 +16,19 @@ public:
     int health, w, h;
     bool onGround;
     unsigned int num;
+	std::list <Entity*> *l;
+	std::vector < std::list<Entity*>::iterator > *Qd;
 
-    enum { fr, unfr, frbul, unfrbul, spawner, portal} type;
+    enum { fr, unfr, frbul, unfrbul, spawner, portal, died} type;
 
     sf::Texture texture;
 	sf::Sprite sprite;
 
-    Entity (sf::Image *image, double X, double Y, int W, int H)
+	Entity(sf::Image *image, double X, double Y, int W, int H, std::list <Entity*> *L, std::vector < std::list<Entity*>::iterator > *QD)
     {
+		l = L;
+		Qd = QD;
+
         num = ident;
         entIsAlive.push_back (1);
         ident++;
@@ -57,20 +62,20 @@ public:
 		return FloatRect((float)x, (float)y, (float)w, (float)h);
 	}
 
-    virtual void update(double time, std::list<Entity*> *l) = 0;
+    virtual void update(double time) = 0;
 
     virtual void drawE (double time, RenderWindow* window) = 0;
 
-    void del(std::list<Entity*> *l)
+    void del()
     {
         for (std::list<Entity*>::iterator Pointer = l->begin(); Pointer != l->end(); Pointer++)
             if ((*Pointer)->num == num)
             {
                 entIsAlive[num] = 0;
 
-                delete this;
+				Qd->push_back(Pointer);
 
-                l->erase(Pointer);
+				this->type = died;
 
                 return;
             }

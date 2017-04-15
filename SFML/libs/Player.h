@@ -14,8 +14,8 @@ public:
 
     std::list <Weapon*> weapons;
 
-    Player(Image *image, double X, double Y, int W, int H)
-    : Entity(image, X, Y, W, H)
+    Player(Image *image, double X, double Y, int W, int H, std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)
+    : Entity(image, X, Y, W, H, l, Qd)
     {
         type = fr;
 
@@ -27,19 +27,19 @@ public:
 
         PodushkaMet *b;
 
-        b = new PodushkaMet (8, 1);
+        b = new PodushkaMet (8, 1, l, Qd, this);
 
         weapons.push_back (b);
     }
 
-    void update(double time, std::list<Entity*> *l);
+    void update(double time);
 
     void drawE (double time, RenderWindow* window);
 
 private:
     void checkCol(double Vx, double Vy);
 
-    void control (std::list<Entity*> *l);
+    void control ();
 };
 
 void Player::drawE (double time, RenderWindow* window)
@@ -80,9 +80,9 @@ void Player::checkCol(double Vx, double Vy)
        }
 }
 
-void Player::update(double time, std::list<Entity*> *l)
+void Player::update(double time)
 {
-    control(l);
+    control();
 
     switch (state)
     {
@@ -114,7 +114,7 @@ void Player::update(double time, std::list<Entity*> *l)
         (*g)->update(time);
 }
 
-void Player::control(std::list<Entity*> *l)
+void Player::control()
 {
     //if (sf::Keyboard::isKeyPressed)
     //{
@@ -145,9 +145,9 @@ void Player::control(std::list<Entity*> *l)
         if (sf::Keyboard::isKeyPressed(Keyboard::Space))// && spawn == 1)
         {
             if (dir == right)
-                weapons.back()->shoot(l, 1,  &x, &y);
+                (weapons.back())->shoot(1,  &x, &y);
             else
-                weapons.back()->shoot(l, -1, &x, &y);
+                (weapons.back())->shoot(-1, &x, &y);
         }
     //}
 }

@@ -8,8 +8,8 @@ class Enemy :
     enum { stay, up, right, down, left, jump} state;
 	double timer;
 
-    Enemy(Image *image, double X, double Y, int W, int H)
-    : Entity(image, X, Y, W, H)
+    Enemy(Image *image, double X, double Y, int W, int H, std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)
+    : Entity(image, X, Y, W, H, l, Qd)
     {
         enemyCount++;
 
@@ -19,17 +19,16 @@ class Enemy :
         timer = 0;
     }
 
-    virtual void update(double time, std::list<Entity*> *l) = 0;
+    virtual void update(double time) = 0;
 
     void drawE (double time, RenderWindow* window);
 
     bool checkCol(double Vx, double
 		Vy);
 
-    virtual void AI (double
-		*timer, std::list<Entity*> *l) = 0;
+    virtual void AI (double *timer) = 0;
 
-    void dead(std::list<Entity*> *l);
+    void dead();
 };
 
 void Enemy::drawE (double time, RenderWindow* window)
@@ -37,16 +36,15 @@ void Enemy::drawE (double time, RenderWindow* window)
     window->draw (sprite);
 }
 
-void Enemy::dead (std::list<Entity*> *l)
+void Enemy::dead ()
 {
-    this->del(l);
+    this->del();
 
     return;
 }
 
 
-bool Enemy::checkCol(double Vx, double
-	Vy)
+bool Enemy::checkCol(double Vx, double Vy)
 {
     for (int i = (int)(y / 32); i < (y + h) / 32; i++)
         for (int j = (int)(x / 32); j < (x + w) / 32; j++)
@@ -88,8 +86,8 @@ public:
 
 	double pX = 0, pY = 0, timerSee = 0;
 
-    Diablo (Image *image, double X, double Y)
-    : Enemy (image, X, Y, 54, 103)
+    Diablo (Image *image, double X, double Y, std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)
+    : Enemy (image, X, Y, 54, 103, l, Qd)
     {
         health = 10;
 
@@ -98,22 +96,22 @@ public:
 
 private:
     Image enemyImage;
-    void update (double time, std::list<Entity*> *l);
-    void AI (double *timer, std::list<Entity*> *l);
+    void update (double time);
+    void AI (double *timer);
 };
 
-void Diablo::update (double time, std::list<Entity*> *l)
+void Diablo::update (double time)
 {
     if (health <= 0)
     {
-        this->dead(l);
+        this->dead();
         return;
     }
 
     timer += time;
     timerSee += time;
 
-    AI(&timer, l);
+    AI(&timer);
 
     pX = x;
 
@@ -137,7 +135,7 @@ void Diablo::update (double time, std::list<Entity*> *l)
     sprite.setPosition((float)(x + w / 2), (float)(y + h / 2));
 }
 
-void Diablo::AI (double *timer, std::list<Entity*> *l)
+void Diablo::AI (double *timer)
 {
     std::list<Entity*>::iterator b = l->begin();
 
@@ -200,28 +198,28 @@ public:
 
     //std::list <Weapon*> weapons;
 
-    Lasergun *z;
+	Lasergun *z;
 
-    Unicorn (Image *image, double X, double Y)
-    : Enemy (image, X, Y, 68, 65)
+    Unicorn (Image *image, double X, double Y, std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)
+    : Enemy (image, X, Y, 68, 65, l, Qd)
     {
         health = 10;
 
         sprite.setTextureRect(IntRect(0, 0, w, h));
 
-        z = new Lasergun (8, 0);
+        z = new Lasergun (8, 0, l, Qd, this);
 
-        //weapons.push_back (z);
+        //weaponspush_back (z);
     }
 
     Image enemyImage;
-    void update (double time, std::list<Entity*> *l);
+    void update (double time);
 
 private:
-    void AI (double *timer, std::list<Entity*> *l);
+    void AI (double *timer);
 };
 
-void Unicorn::update (double time, std::list<Entity*> *l)
+void Unicorn::update (double time)
 {
     if (health <= 0)
     {
@@ -229,7 +227,7 @@ void Unicorn::update (double time, std::list<Entity*> *l)
 
         delete z;
 
-        this->dead(l);
+        this->dead();
 
         return;
     }
@@ -237,7 +235,7 @@ void Unicorn::update (double time, std::list<Entity*> *l)
     timer += time;
     timerSee += time;
 
-    AI(&timer, l);
+    AI(&timer);
 
     pX = x;
 
@@ -263,7 +261,7 @@ void Unicorn::update (double time, std::list<Entity*> *l)
     z->update(time);
 }
 
-void Unicorn::AI (double *timer, std::list<Entity*> *l)
+void Unicorn::AI (double *timer)
 {
     std::list<Entity*>::iterator b = l->begin();
 
@@ -301,10 +299,10 @@ void Unicorn::AI (double *timer, std::list<Entity*> *l)
     {
         if (vx > 0)
         {
-            z->shoot(l, 1,  &x, &y);
+            z->shoot(1,  &x, &y);
         }
         else
-            z->shoot(l, -1, &x, &y);
+            z->shoot(-1, &x, &y);
 
         if ((*b)->x > this->x)
         {

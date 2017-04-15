@@ -11,6 +11,7 @@ class gameLoop
 {
 public:
     std::list <Entity*> entities;
+	std::vector <std::list<Entity*>::iterator> QueryDeath;
     Sprite s_map;
     Image map_image;
     Texture map;
@@ -36,13 +37,13 @@ public:
         Image diabloImage;
         diabloImage.loadFromFile ("images/UnicornSprite.png");
 
-        player = new Player(&heroImage, 200, 200, 45, 100);
+        player = new Player(&heroImage, 200, 200, 45, 100, &entities, &QueryDeath);
 
         Unicorn *E;
-        E = new Unicorn (&diabloImage, 750, 500);
+        E = new Unicorn (&diabloImage, 750, 500, &entities, &QueryDeath);
 
         entities.push_back (player);
-        //entities.push_back (E);
+        entities.push_back (E);
 
         Ibg.loadFromFile("images/bg2.png");
         Tbg.loadFromImage(Ibg);
@@ -53,12 +54,16 @@ public:
 
     void update(double time)
     {
-        for (std::list<Entity*>::iterator it = entities.begin(); it != entities.end(); it++)
-            if(entIsAlive[(*it)->num])(*it)->update(time, &entities);
+		for (std::list<Entity*>::iterator it = entities.begin(); it != entities.end(); it++)
+			if (entIsAlive[(*it)->num])
+			{
+				(*it)->update(time);
+				if (!entIsAlive[(*it)->num]) it--;
+			}
 
 		std::cout << (*entities.begin())->num;
 
-        draw(window, &s_map, &entities, time, player, Sbg);
+		draw(window, &s_map, &entities, time, player, Sbg);
      }
 
 private:

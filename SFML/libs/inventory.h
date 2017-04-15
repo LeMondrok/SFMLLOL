@@ -11,8 +11,9 @@ public:
 
     bool friendly;
 
-    Explosion (Image *image, double X, double Y, int W, int H, int Timer, std::list<Entity*> *l, int damage, bool Friendly)
-    : Entity(image, X, Y, W, H)
+    Explosion (Image *image, double X, double Y, int W, int H, int Timer, int damage, 
+			   bool Friendly, std::list<Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)
+    : Entity(image, X, Y, W, H, l, Qd)
     {
         friendly = Friendly;
 
@@ -49,7 +50,7 @@ public:
 
     void drawE (double time, RenderWindow* window);
 
-    void update(double time, std::list<Entity*> *l);
+    void update(double time);
 };
 
 void Explosion::drawE (double time, RenderWindow* window)
@@ -57,12 +58,12 @@ void Explosion::drawE (double time, RenderWindow* window)
     window->draw (sprite);
 }
 
-void Explosion::update(double time, std::list<Entity*> *l)
+void Explosion::update(double time)
 {
     timer -= time;
 
     if (timer < 0)
-        this->del(l);
+        this->del();
     else
         sprite.setPosition((float)(x + w / 2), (float)(y + h / 2));
 }
@@ -81,8 +82,9 @@ public:
 
     bool friendly;
 
-    Rocket(Image *image, double X, double Y, int W, int H, double Ax, double Ay, int Range, Image *B, bool Friendly)//, state dir)
-    : Entity(image, X, Y, W, H)
+    Rocket(Image *image, double X, double Y, int W, int H, double Ax, double Ay, int Range, Image *B, bool Friendly,
+		std::list<Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)//, state dir)
+    : Entity(image, X, Y, W, H, l, Qd)
     {
         friendly = Friendly;
 
@@ -104,13 +106,13 @@ public:
         b = B;
     }
 
-    void update(double time, std::list<Entity*> *l);
-    void boom(std::list<Entity*> *l);
+    void update(double time);
+    void boom();
 
     void drawE (double time, RenderWindow* window);
 
 private:
-    bool checkCol(double Vx, double Vy, std::list<Entity*> *l);
+    bool checkCol(double Vx, double Vy);
 };
 
 void Rocket::drawE (double time, RenderWindow* window)
@@ -118,7 +120,7 @@ void Rocket::drawE (double time, RenderWindow* window)
     window->draw (sprite);
 }
 
-void Rocket::update(double time, std::list<Entity*> *l)
+void Rocket::update(double time)
 {
     timer += time;
 
@@ -127,21 +129,21 @@ void Rocket::update(double time, std::list<Entity*> *l)
         if (friendly)
             if ((*b)->num != this->num && (*b)->type == unfr &&(*b)->getRekt().intersects(this->getRekt()))
             {
-                this->boom(l);
+                this->boom();
 
                 return;
             }
         else
             if ((*b)->num != this->num && (*b)->type == fr &&(*b)->getRekt().intersects(this->getRekt()))
             {
-                this->boom(l);
+                this->boom();
 
                 return;
             }
     }
 
     x += vx * time;
-    if (checkCol(vx, 0, l) == 1) return;
+    if (checkCol(vx, 0) == 1) return;
 
     vx += ax * time;
 
@@ -150,25 +152,25 @@ void Rocket::update(double time, std::list<Entity*> *l)
     if (vx >= 1)vx = 1;
 }
 
-void Rocket::boom(std::list<Entity*> *l)
+void Rocket::boom()
 {
     Explosion *E;
 
-    E = new  Explosion(b, x, y, 32, 28, 1000, l, 5, friendly);
+    E = new  Explosion(b, x, y, 32, 28, 1000, 5, friendly, l, Qd);
 
     l->push_back(E);
 
-    this->del(l);
+    this->del();
 }
 
-bool Rocket::checkCol(double Vx, double Vy, std::list<Entity*> *l)
+bool Rocket::checkCol(double Vx, double Vy)
 {
     for (int i = (int)(y / 32); i < (y + h) / 32; i++)
         for (int j = (int)(x / 32); j < (x + w) / 32; j++)
         {
            if (TileMap[i][j] == '0' || TileMap[i][j] == 'f')
            {
-                this->boom(l);
+                this->boom();
 
                 return 1;
            }
@@ -191,8 +193,9 @@ public:
 
     bool friendly;
 
-    Podushka(Image *image, double X, double Y, int W, int H, double Vx, double Ay, int Range, Image *B, bool Friendly)//, state dir)
-    : Entity(image, X, Y, W, H)
+    Podushka(Image *image, double X, double Y, int W, int H, double Vx, double Ay, int Range, Image *B, bool Friendly,
+		     std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)
+    : Entity(image, X, Y, W, H, l, Qd)
     {
         friendly = Friendly;
 
@@ -214,13 +217,13 @@ public:
         b = B;
     }
 
-    void update(double time, std::list<Entity*> *l);
-    void boom(std::list<Entity*> *l);
+    void update(double time);
+    void boom();
 
     void drawE (double time, RenderWindow* window);
 
 private:
-    bool checkCol(double Vx, double Vy, std::list<Entity*> *l);
+    bool checkCol(double Vx, double Vy);
 };
 
 void Podushka::drawE (double time, RenderWindow* window)
@@ -228,7 +231,7 @@ void Podushka::drawE (double time, RenderWindow* window)
     window->draw (sprite);
 }
 
-void Podushka::update(double time, std::list<Entity*> *l)
+void Podushka::update(double time)
 {
     timer += time;
 
@@ -239,7 +242,7 @@ void Podushka::update(double time, std::list<Entity*> *l)
             if ((*b)->num != this->num && (*b)->type == unfr &&(*b)->getRekt().intersects(this->getRekt()))
             {
                 std::cout << friendly;
-                this->boom(l);
+                this->boom();
 
                 return;
             }
@@ -248,7 +251,7 @@ void Podushka::update(double time, std::list<Entity*> *l)
         {
             if ((*b)->num != this->num && (*b)->type == fr &&(*b)->getRekt().intersects(this->getRekt()))
             {
-                this->boom(l);
+                this->boom();
 
                 return;
             }
@@ -256,10 +259,10 @@ void Podushka::update(double time, std::list<Entity*> *l)
     }
 
     x += vx * time;
-    if (checkCol(vx, 0, l) == 1) return;
+    if (checkCol(vx, 0) == 1) return;
 
     y += vy * time;
-    if (checkCol(0, vy, l) == 1) return;
+    if (checkCol(0, vy) == 1) return;
 
     vy += ay * time;
 
@@ -270,25 +273,25 @@ void Podushka::update(double time, std::list<Entity*> *l)
     if (vx >= 1)vx = 1;
 }
 
-void Podushka::boom(std::list<Entity*> *l)
+void Podushka::boom()
 {
     Explosion *E;
 
-    E = new  Explosion(b, x, y, 32, 28, 1000, l, 5, friendly);
+    E = new  Explosion(b, x, y, 32, 28, 1000, 5, friendly, l, Qd);
 
     l->push_back(E);
 
-    this->del(l);
+    this->del();
 }
 
-bool Podushka::checkCol(double Vx, double Vy, std::list<Entity*> *l)
+bool Podushka::checkCol(double Vx, double Vy)
 {
     for (int i = (int)(y / 32); i < (y + h) / 32; i++)
         for (int j = (int)(x / 32); j < (x + w) / 32; j++)
         {
            if (TileMap[i][j] == '0' || TileMap[i][j] == 'f')
            {
-                this->boom(l);
+                this->boom();
 
                 return 1;
            }
@@ -310,8 +313,15 @@ public:
 
     int ammo, magazine;
 
-    Weapon (int Ammo, bool Friendly)
+	std::list <Entity*> *l;
+	std::vector < std::list<Entity*>::iterator > *Qd;
+	Entity* owner;
+
+    Weapon (int Ammo, bool Friendly, std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd,
+			Entity* Owner)
     {
+		owner = Owner;
+
         ammo = Ammo;
 
         friendly = Friendly;
@@ -319,7 +329,7 @@ public:
 
     virtual void update(double time) = 0;
 
-    virtual void shoot(std::list<Entity*> *l, int dir, double *x, double *y) = 0;
+    virtual void shoot(int dir, double *x, double *y) = 0;
 };
 
 class PodushkaMet :
@@ -332,8 +342,9 @@ class PodushkaMet :
 
 	double vB = 0.4;
 
-    PodushkaMet (int Ammo, bool Friendly)
-    : Weapon (Ammo, Friendly)
+    PodushkaMet (int Ammo, bool Friendly, std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd,
+				 Entity* Owner)
+    : Weapon (Ammo, Friendly, l, Qd, Owner)
     {
         i.loadFromFile("images/kot.png");
         b.loadFromFile("images/boom.png");
@@ -352,7 +363,7 @@ class PodushkaMet :
         if (load == 0 && timer >= 1000) load = 1;
     }
 
-    void shoot(std::list<Entity*> *l, int dir, double *x, double *y)
+    void shoot(int dir, double *x, double *y)
     {
         if (load && processing == 0)
         {
@@ -360,9 +371,11 @@ class PodushkaMet :
 
             Podushka *r;
 
-            r = new Podushka (&i, *x, *y, 80, 60, (*l->begin())->vx + vB * dir, 0.001, 5, &b, friendly);
+            r = new Podushka (&i, *x, *y, 80, 60, (*owner).vx + vB * dir, 0.001, 5, &b, friendly, l, Qd);
 
-            l->push_back (r);
+			std::cout << 1;
+
+            l->push_back(r);
 
             load = 0;
             timer = 0;
@@ -380,8 +393,9 @@ public:
 
     Image i, b;
 
-    Bazooka (int Ammo, bool Friendly)
-    : Weapon (Ammo, friendly)
+    Bazooka (int Ammo, bool Friendly, std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd,
+			 Entity* Owner)
+    : Weapon (Ammo, friendly, l, Qd, Owner)
     {
         i.loadFromFile("images/Podushka.png");
         b.loadFromFile("images/boom.png");
@@ -400,7 +414,7 @@ public:
         if (load == 0 && timer >= 1000) load = 1;
     }
 
-    void shoot(std::list<Entity*> *l, int dir, double *x, double *y)
+    void shoot(int dir, double *x, double *y)
     {
         if (load && processing == 0)
         {
@@ -408,7 +422,7 @@ public:
 
             Rocket *r;
 
-            r = new Rocket (&i, *x, *y, 38, 25,  0.001 * dir, 0, 5, &b, friendly);
+            r = new Rocket (&i, *x, *y, 38, 25,  0.001 * dir, 0, 5, &b, friendly, l, Qd);
 
             l->push_back (r);
 
@@ -434,8 +448,9 @@ public:
 
     bool friendly;
 
-    Laser(Image *image, double X, double Y, int W, int H, double Vx, double Ay, int Range, Image *B, bool Friendly)//, state dir)
-    : Entity(image, X, Y, W, H)
+    Laser(Image *image, double X, double Y, int W, int H, double Vx, double Ay, int Range, Image *B, bool Friendly,
+		  std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)
+    : Entity(image, X, Y, W, H, l, Qd)
     {
         friendly = Friendly;
 
@@ -457,13 +472,13 @@ public:
         b = B;
     }
 
-    void update(double time, std::list<Entity*> *l);
-    void boom(std::list<Entity*> *l);
+    void update(double time);
+    void boom();
 
     void drawE (double time, RenderWindow* window);
 
 private:
-    bool checkCol(double Vx, double Vy, std::list<Entity*> *l);
+    bool checkCol(double Vx, double Vy);
 };
 
 void Laser::drawE (double time, RenderWindow* window)
@@ -471,7 +486,7 @@ void Laser::drawE (double time, RenderWindow* window)
     window->draw (sprite);
 }
 
-void Laser::update(double time, std::list<Entity*> *l)
+void Laser::update(double time)
 {
     timer += time;
 
@@ -482,7 +497,7 @@ void Laser::update(double time, std::list<Entity*> *l)
             if ((*b)->num != this->num && (*b)->type == unfr &&(*b)->getRekt().intersects(this->getRekt()))
             {
                 std::cout << friendly;
-                this->boom(l);
+                this->boom();
 
                 return;
             }
@@ -491,7 +506,7 @@ void Laser::update(double time, std::list<Entity*> *l)
         {
             if ((*b)->num != this->num && (*b)->type == fr &&(*b)->getRekt().intersects(this->getRekt()))
             {
-                this->boom(l);
+                this->boom();
 
                 return;
             }
@@ -499,10 +514,10 @@ void Laser::update(double time, std::list<Entity*> *l)
     }
 
     x += vx * time;
-    if (checkCol(vx, 0, l) == 1) return;
+    if (checkCol(vx, 0) == 1) return;
 
     y += vy * time;
-    if (checkCol(0, vy, l) == 1) return;
+    if (checkCol(0, vy) == 1) return;
 
     vy += ay * time;
 
@@ -513,25 +528,25 @@ void Laser::update(double time, std::list<Entity*> *l)
     if (vx >= 1)vx = 1;
 }
 
-void Laser::boom(std::list<Entity*> *l)
+void Laser::boom()
 {
     Explosion *E;
 
-    E = new  Explosion(b, x, y, 32, 28, 1000, l, 5, friendly);
+    E = new  Explosion(b, x, y, 32, 28, 1000, 5, friendly, l, Qd);
 
     l->push_back(E);
 
-    this->del(l);
+    this->del();
 }
 
-bool Laser::checkCol(double Vx, double Vy, std::list<Entity*> *l)
+bool Laser::checkCol(double Vx, double Vy)
 {
     for (int i = (int)(y / 32); i < (y + h) / 32; i++)
         for (int j = (int)(x / 32); j < (x + w) / 32; j++)
         {
            if (TileMap[i][j] == '0' || TileMap[i][j] == 'f')
            {
-                this->boom(l);
+                this->boom();
 
                 return 1;
            }
@@ -550,8 +565,9 @@ class Lasergun :
 
 	double vB = 0.4;
 
-    Lasergun (int Ammo, bool Friendly)
-    : Weapon (Ammo, Friendly)
+    Lasergun (int Ammo, bool Friendly, std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd,
+			  Entity* Owner)
+    : Weapon (Ammo, Friendly, l, Qd, Owner)
     {
         i.loadFromFile("images/lll.png");
         b.loadFromFile("images/boom.png");
@@ -570,7 +586,7 @@ class Lasergun :
         if (load == 0 && timer >= 1000) load = 1;
     }
 
-    void shoot(std::list<Entity*> *l, int dir, double *x, double *y)
+    void shoot(int dir, double *x, double *y)
     {
         if (load && processing == 0)
         {
@@ -578,7 +594,7 @@ class Lasergun :
 
             Laser *r;
 
-            r = new Laser (&i, *x, *y, 38, 5, vB * dir, 0.001, 5, &b, friendly);
+            r = new Laser (&i, *x, *y, 38, 5, vB * dir, 0.001, 5, &b, friendly, l, Qd);
 
             l->push_back (r);
 

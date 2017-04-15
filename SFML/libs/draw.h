@@ -46,7 +46,7 @@ void draw(sf::RenderWindow *window, Sprite *s_map, std::list <Entity*> *enemies,
 
     Sbg.setPosition((float)xBg, (float)yBg);
 
-    //window->draw(Sbg);
+    window->draw(Sbg);
 
     drawMap (window, s_map);
     drawEntities(window, enemies, time);
