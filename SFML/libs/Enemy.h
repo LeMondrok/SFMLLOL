@@ -23,8 +23,7 @@ class Enemy :
 
     void drawE (double time, RenderWindow* window);
 
-    bool checkCol(double Vx, double
-		Vy);
+    bool checkCol(double Vx, double Vy);
 
     virtual void AI (double *timer) = 0;
 
@@ -42,7 +41,6 @@ void Enemy::dead ()
 
     return;
 }
-
 
 bool Enemy::checkCol(double Vx, double Vy)
 {
@@ -327,3 +325,4 @@ void Unicorn::AI (double *timer)
         }
     }
 }
+

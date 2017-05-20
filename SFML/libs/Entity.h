@@ -1,10 +1,13 @@
 #pragma once
+#include "stdafx.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "libs/map.h"
-#include "libs/view.h"
+#include <libs/map.h>
+#include <libs/view.h>
 #include <list>
 #include <vector>
+#include <libs/notmy/collision/Collision.h>
+//#include <libs/Animation.h>
 
 unsigned int ident = 0, enemyCount = 0;
 std::vector <bool> entIsAlive;
@@ -66,18 +69,18 @@ public:
 
     virtual void drawE (double time, RenderWindow* window) = 0;
 
-    void del()
-    {
-        for (std::list<Entity*>::iterator Pointer = l->begin(); Pointer != l->end(); Pointer++)
-            if ((*Pointer)->num == num)
-            {
-                entIsAlive[num] = 0;
+	void del()
+	{
+		for (std::list<Entity*>::iterator Pointer = l->begin(); Pointer != l->end(); Pointer++)
+			if ((*Pointer)->num == num)
+			{
+				entIsAlive[num] = 0;
 
 				Qd->push_back(Pointer);
 
 				this->type = died;
 
-                return;
-            }
-    }
+				return;
+			}
+	}
 };

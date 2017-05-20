@@ -1,9 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "libs/map.h"
-#include "libs/Entity.h"
-#include "libs/Player.h"
-#include "libs/Enemy.h"
+#include <libs/map.h>
+#include <libs/Entity.h>
+#include <libs/Player.h>
+#include <libs/Enemy.h>
 #include <iostream>
 #include <list>
 

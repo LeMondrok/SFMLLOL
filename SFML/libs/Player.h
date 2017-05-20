@@ -114,40 +114,37 @@ void Player::update(double time)
         (*g)->update(time);
 }
 
-void Player::control()
+void Player::control() 
 {
-    //if (sf::Keyboard::isKeyPressed)
-    //{
-        if (sf::Keyboard::isKeyPressed(Keyboard::Left))
-        {
-            state = left;
-            speed = 0.1;
-        }
-        if (sf::Keyboard::isKeyPressed(Keyboard::Right))
-        {
-            state = right;
-            speed = 0.1;
-        }
-        if (sf::Keyboard::isKeyPressed(Keyboard::Up) && onGround)
-        {
-            state = jump;
+    if (sf::Keyboard::isKeyPressed(Keyboard::Left))
+    {
+        state = left;
+        speed = 0.1;
+    }
+    if (sf::Keyboard::isKeyPressed(Keyboard::Right))
+    {
+        state = right;
+        speed = 0.1;
+    }
+    if (sf::Keyboard::isKeyPressed(Keyboard::Up) && onGround)
+    {
+        state = jump;
 
-            onGround = 0;
+        onGround = 0;
 
-            vy = -0.6;
-        }
-        if (sf::Keyboard::isKeyPressed(Keyboard::Down))
-        {
-            state = down;
+        vy = -0.6;
+    }
+    if (sf::Keyboard::isKeyPressed(Keyboard::Down))
+    {
+        state = down;
 
-            speed = 0;
-        }
-        if (sf::Keyboard::isKeyPressed(Keyboard::Space))// && spawn == 1)
-        {
-            if (dir == right)
-                (weapons.back())->shoot(1,  &x, &y);
-            else
-                (weapons.back())->shoot(-1, &x, &y);
-        }
-    //}
+        speed = 0;
+    }
+    if (sf::Keyboard::isKeyPressed(Keyboard::Space))// && spawn == 1)
+    {
+        if (dir == right)
+            (weapons.back())->shoot(1,  &x, &y);
+        else
+            (weapons.back())->shoot(-1, &x, &y);
+    }
 }

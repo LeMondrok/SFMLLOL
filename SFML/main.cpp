@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include "libs/gameengine.h"
+#include <libs/gameengine.h>
 
 using namespace sf;
 
@@ -15,15 +15,16 @@ int main()
 
     gameLoop lol (&window, 0);
 
-
     while (window.isOpen())
     {
+		
+
 		double time = (double)clock.getElapsedTime().asMicroseconds();
 
 		clock.restart();
 		time = time / 800;
 
-        Event event;
+        sf::Event event;
 
         while (window.pollEvent(event))
 		{

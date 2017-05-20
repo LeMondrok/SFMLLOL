@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "libs/Entity.h"
-#include "libs/Player.h"
+#include <libs/Entity.h>
+#include <libs/Player.h>
 
 class Explosion :
     public Entity
@@ -62,8 +62,12 @@ void Explosion::update(double time)
 {
     timer -= time;
 
-    if (timer < 0)
-        this->del();
+	if (timer < 0)
+	{
+		this->del();
+
+		return;
+	}
     else
         sprite.setPosition((float)(x + w / 2), (float)(y + h / 2));
 }
@@ -127,14 +131,14 @@ void Rocket::update(double time)
     for (std::list<Entity*>::iterator b = l->begin(); b != l->end(); b++)
     {
         if (friendly)
-            if ((*b)->num != this->num && (*b)->type == unfr &&(*b)->getRekt().intersects(this->getRekt()))
+            if ((*b)->num != this->num && (*b)->type == unfr &&Collision::PixelPerfectTest((*b)->sprite, this->sprite))
             {
                 this->boom();
 
                 return;
             }
         else
-            if ((*b)->num != this->num && (*b)->type == fr &&(*b)->getRekt().intersects(this->getRekt()))
+            if ((*b)->num != this->num && (*b)->type == fr &&Collision::PixelPerfectTest((*b)->sprite, this->sprite))
             {
                 this->boom();
 
@@ -239,7 +243,7 @@ void Podushka::update(double time)
     {
         if (friendly)
         {
-            if ((*b)->num != this->num && (*b)->type == unfr &&(*b)->getRekt().intersects(this->getRekt()))
+            if ((*b)->num != this->num && (*b)->type == unfr && Collision::PixelPerfectTest((*b)->sprite, this->sprite))
             {
                 std::cout << friendly;
                 this->boom();
@@ -249,7 +253,7 @@ void Podushka::update(double time)
         }
         else
         {
-            if ((*b)->num != this->num && (*b)->type == fr &&(*b)->getRekt().intersects(this->getRekt()))
+            if ((*b)->num != this->num && (*b)->type == fr   && Collision::PixelPerfectTest((*b)->sprite, this->sprite))
             {
                 this->boom();
 
@@ -298,6 +302,127 @@ bool Podushka::checkCol(double Vx, double Vy)
         }
 
     return 0;
+}
+
+class Laser :
+	public Entity
+{
+public:
+	double ax, ay, sx, sy;
+
+	double range;
+
+	double timer;
+
+	Image *b;
+
+	bool friendly;
+
+	Laser(Image *image, double X, double Y, int W, int H, double Vx, double Ay, int Range, Image *B, bool Friendly,
+		std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)
+		: Entity(image, X, Y, W, H, l, Qd)
+	{
+		friendly = Friendly;
+
+		type = frbul;
+		range = Range;
+
+		sx = x;
+		sy = y;
+
+		ax = 0;
+		ay = 0;
+
+		vx = Vx;
+		vy = 0;
+
+		sprite.setTextureRect(IntRect(0, 0, w, h));
+		if (ax < 0) sprite.setScale(-1, 1);
+
+		b = B;
+	}
+
+	void update(double time);
+	void boom();
+
+	void drawE(double time, RenderWindow* window);
+
+private:
+	bool checkCol(double Vx, double Vy);
+};
+
+void Laser::drawE(double time, RenderWindow* window)
+{
+	window->draw(sprite);
+}
+
+void Laser::update(double time)
+{
+	timer += time;
+
+	for (std::list<Entity*>::iterator b = l->begin(); b != l->end(); b++)
+	{
+		if (friendly)
+		{
+			if ((*b)->num != this->num && (*b)->type == unfr && Collision::PixelPerfectTest((*b)->sprite, this->sprite))
+			{
+				std::cout << friendly;
+				this->boom();
+
+				return;
+			}
+		}
+		else
+		{
+			if ((*b)->num != this->num && (*b)->type == fr && Collision::PixelPerfectTest((*b)->sprite, this->sprite))
+			{
+				this->boom();
+
+				return;
+			}
+		}
+	}
+
+	x += vx * time;
+	if (checkCol(vx, 0) == 1) return;
+
+	y += vy * time;
+	if (checkCol(0, vy) == 1) return;
+
+	vy += ay * time;
+
+	//sprite.rotate(1 * time);
+
+	sprite.setPosition((float)(x + w / 2), (float)(y + h / 2));
+
+	if (vx >= 1)vx = 1;
+}
+
+void Laser::boom()
+{
+	Explosion *E;
+
+	E = new  Explosion(b, x, y, 32, 28, 1000, 5, friendly, l, Qd);
+
+	l->push_back(E);
+
+	this->del();
+}
+
+bool Laser::checkCol(double Vx, double Vy)
+{
+	for (int i = (int)(y / 32); i < (y + h) / 32; i++)
+		for (int j = (int)(x / 32); j < (x + w) / 32; j++)
+		{
+			if (TileMap[i][j] == '0' || TileMap[i][j] == 'f')
+			{
+				this->boom();
+
+				return 1;
+			}
+		}
+
+	return 0;
 }
 
 class Weapon
@@ -377,8 +502,6 @@ class PodushkaMet :
 
             r = new Podushka (&i, *x, *y, 80, 60, (*owner).vx + vB * dir, 0.001, 5, &b, friendly, l, Qd);
 
-			std::cout << 1;
-
             l->push_back(r);
 
             load = 0;
@@ -437,127 +560,6 @@ public:
         }
     }
 };
-
-class Laser :
-    public Entity
-{
-public:
-	double ax, ay, sx, sy;
-
-	double range;
-
-	double timer;
-
-    Image *b;
-
-    bool friendly;
-
-    Laser(Image *image, double X, double Y, int W, int H, double Vx, double Ay, int Range, Image *B, bool Friendly,
-		  std::list <Entity*> *l, std::vector < std::list<Entity*>::iterator > *Qd)
-    : Entity(image, X, Y, W, H, l, Qd)
-    {
-        friendly = Friendly;
-
-        type = frbul;
-        range = Range;
-
-        sx = x;
-        sy = y;
-
-        ax = 0;
-        ay = 0;
-
-        vx = Vx;
-        vy = 0;
-
-        sprite.setTextureRect(IntRect(0, 0, w, h));
-        if (ax < 0) sprite.setScale(-1, 1);
-
-        b = B;
-    }
-
-    void update(double time);
-    void boom();
-
-    void drawE (double time, RenderWindow* window);
-
-private:
-    bool checkCol(double Vx, double Vy);
-};
-
-void Laser::drawE (double time, RenderWindow* window)
-{
-    window->draw (sprite);
-}
-
-void Laser::update(double time)
-{
-    timer += time;
-
-    for (std::list<Entity*>::iterator b = l->begin(); b != l->end(); b++)
-    {
-        if (friendly)
-        {
-            if ((*b)->num != this->num && (*b)->type == unfr &&(*b)->getRekt().intersects(this->getRekt()))
-            {
-                std::cout << friendly;
-                this->boom();
-
-                return;
-            }
-        }
-        else
-        {
-            if ((*b)->num != this->num && (*b)->type == fr &&(*b)->getRekt().intersects(this->getRekt()))
-            {
-                this->boom();
-
-                return;
-            }
-        }
-    }
-
-    x += vx * time;
-    if (checkCol(vx, 0) == 1) return;
-
-    y += vy * time;
-    if (checkCol(0, vy) == 1) return;
-
-    vy += ay * time;
-
-    //sprite.rotate(1 * time);
-
-    sprite.setPosition((float)(x + w / 2), (float)(y + h / 2));
-
-    if (vx >= 1)vx = 1;
-}
-
-void Laser::boom()
-{
-    Explosion *E;
-
-    E = new  Explosion(b, x, y, 32, 28, 1000, 5, friendly, l, Qd);
-
-    l->push_back(E);
-
-    this->del();
-}
-
-bool Laser::checkCol(double Vx, double Vy)
-{
-    for (int i = (int)(y / 32); i < (y + h) / 32; i++)
-        for (int j = (int)(x / 32); j < (x + w) / 32; j++)
-        {
-           if (TileMap[i][j] == '0' || TileMap[i][j] == 'f')
-           {
-                this->boom();
-
-                return 1;
-           }
-        }
-
-    return 0;
-}
 
 class Lasergun :
     public Weapon

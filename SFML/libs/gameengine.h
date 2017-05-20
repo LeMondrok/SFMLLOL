@@ -60,7 +60,19 @@ public:
 
 		
 		draw(window, &s_map, &entities, time, player, Sbg);
+
+		for (int i = QueryDeath.size() - 1; i >= 0; i--)
+		{
+			(*QueryDeath[i])->del();
+
+			entities.erase(QueryDeath[i]);
+		}
+
+		QueryDeath.clear();
+
+		return;
      }
+
 
 private:
     RenderWindow *window;
