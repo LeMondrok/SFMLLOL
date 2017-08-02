@@ -21,7 +21,7 @@ public:
     unsigned int num;
 	std::list <Entity*> *l;
 	std::vector < std::list<Entity*>::iterator > *Qd;
-
+	
     enum { fr, unfr, frbul, unfrbul, spawner, portal, died} type;
 
     sf::Texture texture;
